@@ -58,6 +58,7 @@ README.md
 SECURITY.md
 t/.gitattributes
 t/atee.t
+t/dispatch.t
 t/filter_example.t
 t/snippets1.t
 t/snippets10.t

@@ -1,0 +1,20 @@
+# allow 'if' within on(..)
+dispatch ($person) {
+    on( { name => $name, age => $age, ... } if $age < 18 ) {
+        say "$name is a minor";
+    }
+    on( { name => $name, salary => $salary, ... } ) {
+        say "$name earns $salary";
+    }
+}
+
+# treat 'as' as a binary operator
+dispatch ( read_record() as $record ) {
+    on( { type => "ok", ... } ) { use_record($record) }
+}
+
+# allow pin prefix '^' (treat as sigil for formatting)
+dispatch ($value) {
+    on($value)    { say "the subject matched itself" }
+    on( ^$value ) { say "the explicit pin also matched" }
+}

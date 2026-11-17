@@ -12,7 +12,7 @@
 #9 vpig.vpig2
 #10 spit.def
 #11 spit.spit
-#12 case_match.def
+#12 dispatch.def
 #13 btctd.btctd1
 #14 btctd.btctd2
 #15 btctd.def
@@ -106,26 +106,26 @@ serial number
 print "[BYE!]\n\n";
 ----------
 
-        'case_match' => <<'----------',
-# allow 'if' within match(..)
-case ($person) {
-    match( { name => $name, age => $age, ... } if $age < 18 ) {
+        'dispatch' => <<'----------',
+# allow 'if' within on(..)
+dispatch ($person) {
+    on( { name => $name, age => $age, ... } if $age < 18 ) {
         say "$name is a minor";
     }
-    match( { name => $name, salary => $salary, ... } ) {
+    on( { name => $name, salary => $salary, ... } ) {
         say "$name earns $salary";
     }
 }
 
 # treat 'as' as a binary operator
-case ( read_record() as $record ) {
-    match( { type => "ok", ... } ) { use_record($record) }
+dispatch ( read_record() as $record ) {
+    on( { type => "ok", ... } ) { use_record($record) }
 }
 
 # allow pin prefix '^' (treat as sigil for formatting)
-case ($value) {
-    match($value)    { say "the subject matched itself" }
-    match( ^$value ) { say "the explicit pin also matched" }
+dispatch ($value) {
+    on($value)    { say "the subject matched itself" }
+    on( ^$value ) { say "the explicit pin also matched" }
 }
 ----------
 
@@ -401,29 +401,29 @@ sub circle2( $xc, $yc, $rad ) {
 #11...........
         },
 
-        'case_match.def' => {
-            source => "case_match",
+        'dispatch.def' => {
+            source => "dispatch",
             params => "def",
             expect => <<'#12...........',
-# allow 'if' within match(..)
-case ($person) {
-    match ( { name => $name, age => $age, ... } if $age < 18 ) {
+# allow 'if' within on(..)
+dispatch ($person) {
+    on ( { name => $name, age => $age, ... } if $age < 18 ) {
         say "$name is a minor";
     }
-    match ( { name => $name, salary => $salary, ... } ) {
+    on ( { name => $name, salary => $salary, ... } ) {
         say "$name earns $salary";
     }
 }
 
 # treat 'as' as a binary operator
-case ( read_record() as $record ) {
-    match ( { type => "ok", ... } ) { use_record($record) }
+dispatch ( read_record() as $record ) {
+    on ( { type => "ok", ... } ) { use_record($record) }
 }
 
 # allow pin prefix '^' (treat as sigil for formatting)
-case ($value) {
-    match ($value)    { say "the subject matched itself" }
-    match ( ^$value ) { say "the explicit pin also matched" }
+dispatch ($value) {
+    on ($value)    { say "the subject matched itself" }
+    on ( ^$value ) { say "the explicit pin also matched" }
 }
 #12...........
         },

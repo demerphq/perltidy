@@ -969,7 +969,7 @@ EOM
               [ '0', '1', 'm', 'b', 'f(b', 'f(m', 'f(1' ],
 
             'use-feature' =>
-              [ 'class', ' ', 'noclass', 'case_match', 'nocase_match' ],
+              [ 'class', ' ', 'noclass', 'dispatch', 'nodispatch' ],
 
             'line-range-tidy' => [ '1:', '1:' ],
 

@@ -6,10 +6,11 @@
      provides separate control over spaces within sub signature parentheses,
      independent of the --paren-tightness control. See git #214.
 
-   - Support added for experimental pattern matching feature 'case_match'.
+   - Support added for experimental pattern matching feature 'dispatch',
+     using 'dispatch' and 'on'.
      The changes merely avoid error messages which would otherwise occur,
      so they should not interfere with other perl code, but this
-     new code can be deactivated with '--use-feature='nocase_match'.
+     new code can be deactivated with --use-feature='nodispatch'.
 
    - Add option --valign-postfix-if-gaps, or -vpig, to continue alignment
      of postfix 'if' and 'unless' across gaps of similar code. For example:

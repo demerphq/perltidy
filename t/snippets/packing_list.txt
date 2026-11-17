@@ -529,7 +529,7 @@
 ../snippets34.t	vpig.vpig2
 ../snippets34.t	spit.def
 ../snippets34.t	spit.spit
-../snippets34.t	case_match.def
+../snippets34.t	dispatch.def
 ../snippets34.t	btctd.btctd1
 ../snippets34.t	btctd.btctd2
 ../snippets34.t	btctd.def

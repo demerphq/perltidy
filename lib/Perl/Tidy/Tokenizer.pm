@@ -50,7 +50,7 @@ use constant BACKSLASH        => q{\\};
 # List of hash keys to prevent -duk from listing them.
 # (note the backtick in this list)
 my @unique_hash_keys_uu =
-  qw( ` RPerl _rtype_sequence _ending_in_quote noclass case_match );
+  qw( ` RPerl _rtype_sequence _ending_in_quote noclass dispatch );
 
 # Parent sequence number of tree of containers; must be 1
 use constant SEQ_ROOT => 1;
@@ -444,14 +444,20 @@ sub check_options {
         if ( $use_feature{'class'} )   { $guess_if_method   = 0 }
     }
 
-    # Make 'match' a keyword ONLY if explicitly requested; c649.
-    # Otherwise, the formatter would put a space between a function
-    # 'match' and its opening paren.  The Formatter module will check
-    # for 'match' words used in case_match syntax and convert them to
-    # keywords later, so both older and newer uses should be okay.
-    if ( $use_feature{'case_match'} ) {
-        $is_keyword{match}                        = 1;
-        $is_zero_continuation_block_type{'match'} = 1;
+    # Make 'dispatch' and 'on' keywords ONLY if explicitly requested; c649.
+    # Otherwise, the formatter would put a space between a function name
+    # and its opening paren. The Formatter module will check for these
+    # words used in dispatch syntax and convert them to keywords later,
+    # so both older and newer uses should be okay.
+    foreach my $word (qw( dispatch on )) {
+        delete $is_keyword{$word};
+        delete $is_zero_continuation_block_type{$word};
+    }
+    if ( $use_feature{'dispatch'} ) {
+        foreach my $word (qw( dispatch on )) {
+            $is_keyword{$word}                      = 1;
+            $is_zero_continuation_block_type{$word} = 1;
+        }
     }
 
     # These are the main updates for this option. There are additional
@@ -4289,9 +4295,9 @@ EOM
                 }
             }
 
-            # Check for extended syntax use of '^' as a prefix in case_match.
+            # Check for extended syntax use of '^' as a prefix in dispatch.
             # We will mark it type 't' (a sigil) (c649):
-            if ( $next_tok eq '$' && !$use_feature{'nocase_match'} ) {
+            if ( $next_tok eq '$' && !$use_feature{'nodispatch'} ) {
                 $type = 't';
             }
         }
@@ -4893,8 +4899,8 @@ EOM
                     ## no error message
                 }
 
-                # patch for case_match (c649)
-                elsif ( $tok eq 'as' && !$use_feature{'nocase_match'} ) {
+                # patch for dispatch (c649)
+                elsif ( $tok eq 'as' && !$use_feature{'nodispatch'} ) {
                     ## no error message
                 }
 

@@ -1036,15 +1036,15 @@ BEGIN {
 
     $is_comma_fat_comma_equals{$_} = 1 for ( COMMA, '=>', '=' );
 
-    # For extend syntax words which have a syntax like
-    #    match (...) {...}
+    # For extended syntax words which have a syntax like
+    #    dispatch (...) {...}
+    #    on (...) {...}
     # with a paren layer between the word and the opening block brace,
     # the Tokenizer will append '()' to the block type, so the above
-    # block type will be marked as 'match()'.  Sub write_line() will look
-    # for these blocks and set a flag to have the words converted to
-    # keywords. This is a general capability, but currently only used for
-    # 'match'.
-    $is_extended_syntax_block_type{$_} = 1 for qw{ match() };
+    # block type will be marked as 'dispatch()' or 'on()'. Sub write_line()
+    # will look for these blocks and set a flag to convert the words to
+    # keywords. This also supports Syntax::Keyword::Match's 'match'.
+    $is_extended_syntax_block_type{$_} = 1 for qw{ dispatch() on() match() };
 
 } ## end BEGIN
 
@@ -3268,11 +3268,11 @@ sub initialize_space_after_keyword {
     # Default keywords for which space is introduced before an opening paren:
     # (at present, including them messes up vertical alignment)
     # Added 'cmp' to defaults based on discussion in git #206
-    # Added 'match' in case it is a keyword in case_match (c649) or in
-    # 'Syntax::Keyword::Match' (git162)
+    # Added 'dispatch' and 'on' for feature dispatch (c649), and
+    # 'match' for Syntax::Keyword::Match (git162)
     my @sak = qw( my local our state and or xor cmp err eq ne if else elsif
       until unless while for foreach return switch case given when catch
-      match );
+      dispatch on match );
     %space_after_keyword = map { $_ => 1 } @sak;
 
     # first remove any or all of these if desired
@@ -3429,13 +3429,13 @@ sub initialize_use_feature {
                 option_name  => "--$option_name",
                 on_error     => 'die',
                 rexceptions  => undef,
-                rvalid_words => [qw(class noclass case_match nocase_match)],
+                rvalid_words => [qw(class noclass dispatch nodispatch)],
             }
         );
 
         # check for conflicts like 'class' and 'noclass'
         $use_feature{$_} = 1 for @q;
-        foreach my $word (qw( class case_match )) {
+        foreach my $word (qw( class dispatch )) {
             if ( $use_feature{$word} && $use_feature{"no$word"} ) {
                 Warn(
 "Unexpected text in --$option_name: expecting just one of '$word' or 'no$word'\n"
@@ -9086,10 +9086,10 @@ EOM
                         }
 
                         # Look for extended syntax blocks of the form
-                        # 'match()'. The tokenizer added the '()' to
-                        # indicate the form match (...) {..  We will set
+                        # 'on()'. The tokenizer added the '()' to
+                        # indicate the form on (...) {..  We will set
                         # a flag telling sub 'upgrade_token_types' to change
-                        # 'match' to be type 'k'.  And we can remove the
+                        # 'on' to be type 'k'.  And we can remove the
                         # trailing '()' from the block type.
                         elsif ( $is_extended_syntax_block_type{$block_type} ) {
                             $self->[_ris_extended_syntax_block_seqno_]->{$seqno}
@@ -16947,7 +16947,7 @@ sub upgrade_token_types {
     #
     #                Kc_paren
     #                |
-    #    match ( ... )  { ... }
+    #    on    ( ... )  { ... }
     #       |  |        |
     #  K_word  Ko_paren Ko_block      <-- indexes
     #
@@ -16955,7 +16955,7 @@ sub upgrade_token_types {
     # The error checks are for safety and should never be hit.
     # A simple patch can be seen in v20260826.03, sub set_whitespace.
     # This is more general and a little more efficient.
-    # Added for feature case_match, c649.
+    # Added for feature dispatch, c649.
     # Also works for Syntax::Keyword::Match, git162.
 
     return if ( !%{ $self->[_ris_extended_syntax_block_seqno_] } );
@@ -20648,7 +20648,7 @@ EOM
                 $Ko = $K_opening_container->{$seqno_c};
             }
 
-            # feature 'case_match' allows 'if' within match ( ... ) (c649)
+            # feature 'dispatch' allows 'if' within on ( ... ) (c649)
             if ( $Ko && $token_c eq '(' ) {
                 my $Kc_p = $self->K_previous_code($Ko);
                 my $token_p =
@@ -20656,7 +20656,7 @@ EOM
                   ? $rLL->[$Kc_p]->[_TOKEN_]
                   : EMPTY_STRING;
                 next
-                  if ( $token_p eq 'match' && !$use_feature{'nocase_match'} );
+                  if ( $token_p eq 'on' && !$use_feature{'nodispatch'} );
             }
 
             $count++;
